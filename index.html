@@ -49,6 +49,7 @@ tbody tr:hover{background:var(--yellow-soft)}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
 .b-red{background:var(--redbg);color:var(--red)}
 .b-gmap{background:var(--bluebg);color:var(--blue)}
+.b-ok{background:#e2f6e9;color:#0f9d58;border:1px solid #b7e2c9}
 .b-dash{color:#c3c3c6}
 input.obs{width:100%;min-width:180px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff}
 td.mono{font-family:Consolas,monospace;font-size:12px}
@@ -120,7 +121,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 <script>
 // DADOS (formato: codigo|nome|idLoja|status|responsavel|criadoEm|etapaAutointegracao|tagsRed|gmap)
 var UPDATED="2026-11-19";
-var UPDATED_AT="2026-11-19 14:35";
+var UPDATED_AT="2026-11-19 15:05";
 var DATA=[
 "68168146|MH conveniência Criciúma|-1|Claimed|João Victor Souza de Oliveira|2026-11-19|Account registered||0",
 "68436420|MH conveniência lancheria|159655873|Claimed|João Victor Souza de Oliveira|2026-11-18|Contract signed||0",
@@ -289,11 +290,13 @@ function render(){
     var obsInput='<input type="text" class="obs" value="'+esc(l.obs||'').replace(/"/g,'&quot;')+'" onchange="markObs(\''+l.id+'\',this.value)" placeholder="—">';
     var redHtml=l.red?'<span class="badge b-red">'+esc(trRed(l.red))+'</span>':'<span class="b-dash">—</span>';
     var gmHtml=l.gm?'<span class="badge b-gmap">Google ✓</span>':'<span class="b-dash">—</span>';
+    var stHtml=esc(tr(l.status));
+    if(l.status==='Cooperating'||l.status==='Pre-opening'){stHtml='<span class="badge b-ok">● '+esc(tr(l.status))+'</span>'}
     rows+='<tr>'+
       '<td class="mono">'+l.id+'</td>'+
       '<td class="name">'+esc(l.name)+'</td>'+
       '<td class="mono">'+(l.poi?l.poi:'<span class="b-dash">—</span>')+'</td>'+
-      '<td>'+esc(tr(l.status))+'</td>'+
+      '<td>'+stHtml+'</td>'+
       '<td>'+esc(l.own||'—')+'</td>'+
       '<td class="date">'+esc(l.dt)+'</td>'+
       '<td>'+redHtml+'</td>'+
