@@ -18,6 +18,8 @@ body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,-apple-sys
 .topbar .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .logo{font-size:30px;font-weight:800;letter-spacing:-1.2px;line-height:1;display:flex;align-items:center;color:#111}
 .logo .dot{width:12px;height:12px;border-radius:3px;background:var(--yellow);margin-left:4px}
+.mascote{width:58px;height:58px;object-fit:contain;margin-left:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
+@media (max-width:800px){.mascote{width:44px;height:44px}}
 .tb-title{font-size:16px;font-weight:700}
 .sub{color:var(--muted);font-size:12px;margin-top:3px}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
@@ -64,6 +66,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
       <div class="tb-title">Leads Criciúma · Autointegração via Site Oficial</div>
       <div class="sub">Fonte: win.mykeeta.com — Leads · Filtro: Criciúma + Lead tags (Official website onboarding progress) · Última atualização dos dados: <b id="uptd"></b></div>
     </div>
+    <img class="mascote" src="keeta-mascote.png" alt="Mascote da Keeta">
   </div>
 </header>
 <div class="wrap">
@@ -82,7 +85,8 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
     <label class="chk"><input type="checkbox" id="f-red"> Só Red</label>
     <label class="chk"><input type="checkbox" id="f-gmap"> Só Google (GMap)</label>
     <span class="spacer"></span>
-    <button id="btn-csv" class="primary">Exportar CSV</button>
+    <button id="btn-refresh" class="primary" title="Recarregar a página com os dados mais recentes">↻ Atualizar</button>
+    <button id="btn-csv">Exportar CSV</button>
     <button id="btn-bkp">Backup observações (JSON)</button>
     <button id="btn-imp">Importar observações</button>
     <input type="file" id="file-vis" accept=".json" style="display:none">
@@ -108,6 +112,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
   </div>
   <div class="foot">
     <span id="count"></span>
+    <span>· Última atualização: <b id="uptd-full"></b></span>
     <span>· Suas observações ficam salvas neste navegador (localStorage).</span>
   </div>
 </div>
@@ -115,6 +120,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 <script>
 // DADOS (formato: codigo|nome|idLoja|status|responsavel|criadoEm|etapaAutointegracao|tagsRed|gmap)
 var UPDATED="2026-11-19";
+var UPDATED_AT="2026-11-19 14:35";
 var DATA=[
 "68168146|MH conveniência Criciúma|-1|Claimed|João Victor Souza de Oliveira|2026-11-19|Account registered||0",
 "68436420|MH conveniência lancheria|159655873|Claimed|João Victor Souza de Oliveira|2026-11-18|Contract signed||0",
@@ -236,7 +242,9 @@ function tr(s){if(TRAD[s]!==undefined){return TRAD[s]}return s}
 function trRed(s){var parts=String(s).split(',');var out=[];for(var i=0;i<parts.length;i++){out.push(tr(parts[i].trim()))}return out.join(' · ')}
 
 var LS='keeta_criciuma_obs';
-document.getElementById('uptd').textContent=UPDATED;
+var upP=UPDATED_AT.split(/[- ]/);
+document.getElementById('uptd').innerHTML=UPDATED+' às '+upP[3];
+document.getElementById('uptd-full').textContent=upP[2]+'/'+upP[1]+'/'+upP[0]+' às '+upP[3];
 
 var LEADS=DATA.map(function(r,i){
   var p=r.split('|');
@@ -332,6 +340,7 @@ document.querySelectorAll('th.sortable').forEach(function(th){
   });
 });
 
+document.getElementById('btn-refresh').addEventListener('click',function(){location.reload()});
 document.getElementById('btn-csv').addEventListener('click',function(){
   var lines=['Codigo;Nome;ID da Loja;Status;Responsavel;Criado em;Tags Red;Google GMap;Observacao'];
   LEADS.forEach(function(l){
