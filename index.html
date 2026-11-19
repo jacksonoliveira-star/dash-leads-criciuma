@@ -87,7 +87,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
     <label class="chk"><input type="checkbox" id="f-gmap"> Só Google (GMap)</label>
     <span class="spacer"></span>
     <button id="btn-refresh" class="primary" title="Recarregar a página com os dados mais recentes">↻ Atualizar</button>
-    <button id="btn-csv">Exportar CSV</button>
+    <button id="btn-csv">Exportar Excel</button>
     <button id="btn-bkp">Backup observações (JSON)</button>
     <button id="btn-imp">Importar observações</button>
     <input type="file" id="file-vis" accept=".json" style="display:none">
@@ -118,6 +118,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
   </div>
 </div>
 
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 // DADOS (formato: codigo|nome|idLoja|status|responsavel|criadoEm|etapaAutointegracao|tagsRed|gmap)
 var UPDATED="2026-11-19";
@@ -345,11 +346,23 @@ document.querySelectorAll('th.sortable').forEach(function(th){
 
 document.getElementById('btn-refresh').addEventListener('click',function(){location.reload()});
 document.getElementById('btn-csv').addEventListener('click',function(){
-  var lines=['Codigo;Nome;ID da Loja;Status;Responsavel;Criado em;Tags Red;Google GMap;Observacao'];
-  LEADS.forEach(function(l){
-    lines.push([l.id,'"'+l.name.replace(/"/g,'""')+'"',l.poi||'-',tr(l.status),'"'+(l.own||'-')+'"',l.dt,'"'+trRed(l.red||'')+'"',l.gm?'Sim':'Não','"'+(l.obs||'')+'"'].join(';'));
+  var header=['Codigo','Nome','ID da Loja','Status','Responsavel','Criado em','Tags Red','Google GMap','Observacao'];
+  var rows=LEADS.map(function(l){
+    return [l.id,l.name,l.poi||'-',tr(l.status),l.own||'-',l.dt,trRed(l.red||''),l.gm?'Sim':'Não',l.obs||''];
   });
-  download('leads_criciuma_'+UPDATED+'.csv','\ufeff'+lines.join('\n'),'text/csv');
+  if(typeof XLSX!=='undefined'){
+    var wb=XLSX.utils.book_new();
+    var ws=XLSX.utils.aoa_to_sheet([header].concat(rows));
+    ws['!cols']=[{wch:11},{wch:34},{wch:11},{wch:14},{wch:28},{wch:11},{wch:22},{wch:9},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,ws,'Leads');
+    XLSX.writeFile(wb,'leads_criciuma_'+UPDATED+'.xlsx');
+  }else{
+    var lines=[header.join(';')];
+    rows.forEach(function(r){
+      lines.push([r[0],'"'+String(r[1]).replace(/"/g,'""')+'"',r[2],'"'+String(r[3]).replace(/"/g,'""')+'"','"'+String(r[4]).replace(/"/g,'""')+'"',r[5],'"'+String(r[6]).replace(/"/g,'""')+'"',r[7],'"'+String(r[8]).replace(/"/g,'""')+'"'].join(';'));
+    });
+    download('leads_criciuma_'+UPDATED+'.csv','\ufeff'+lines.join('\n'),'text/csv');
+  }
 });
 document.getElementById('btn-bkp').addEventListener('click',function(){
   download('obs_criciuma_backup.json',JSON.stringify(getStore(),null,2),'application/json');
