@@ -20,7 +20,7 @@ h1{font-size:22px;margin-bottom:4px}
 .stat .n{font-size:26px;font-weight:700}
 .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
 .stat.red .n{color:var(--red)} .stat.gmap .n{color:var(--blue)}
-.stat.ok .n{color:var(--green)}
+.stat.ok .n{color:var(--green)} .stat.cs .n{color:#7c3aed}
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
 input[type=text]{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;min-width:260px}
 select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff}
@@ -43,8 +43,6 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 .name{font-weight:600}
 .date{color:var(--muted);font-size:12px;white-space:nowrap}
 .foot{margin-top:12px;color:var(--muted);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-.pill-hero{background:linear-gradient(135deg,#fee2e2,#dbeafe);border:none}
-.pill-hero .n{color:#b91c1c}
 @media (max-width:800px){body{padding:10px} .stat{min-width:110px}}
 </style>
 </head>
@@ -55,7 +53,8 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 
   <div class="stats">
     <div class="stat"><div class="n" id="s-total">0</div><div class="l">Total de leads</div></div>
-    <div class="stat red"><div class="n" id="s-red">0</div><div class="l">Com tag RED</div></div>
+    <div class="stat cs"><div class="n" id="s-cs">0</div><div class="l">Contrato assinado</div></div>
+    <div class="stat red"><div class="n" id="s-red">0</div><div class="l">Com tag Red</div></div>
     <div class="stat gmap"><div class="n" id="s-gmap">0</div><div class="l">Google (GMap)</div></div>
     <div class="stat ok"><div class="n" id="s-vis">0</div><div class="l">Visitados</div></div>
     <div class="stat"><div class="n" id="s-nvis">0</div><div class="l">Não visitados</div></div>
@@ -63,7 +62,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 
   <div class="controls">
     <input type="text" id="q" placeholder="Buscar por código, nome, ID da loja, responsável...">
-    <label class="chk"><input type="checkbox" id="f-red"> Só RED</label>
+    <label class="chk"><input type="checkbox" id="f-red"> Só Red</label>
     <label class="chk"><input type="checkbox" id="f-gmap"> Só Google (GMap)</label>
     <select id="f-vis">
       <option value="all">Visita: todos</option>
@@ -88,8 +87,8 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
         <th class="sortable" data-k="status">Status</th>
         <th class="sortable" data-k="own">Responsável</th>
         <th class="sortable" data-k="dt">Criado em</th>
-        <th>Etapa autointegração</th>
-        <th class="sortable" data-k="red">RED</th>
+        <th class="sortable" data-k="stage">Etapa autointegração</th>
+        <th class="sortable" data-k="red">Red</th>
         <th class="sortable" data-k="gm">Google</th>
         <th>Visitado?</th>
       </tr>
@@ -104,119 +103,135 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 </div>
 
 <script>
-// DADOS (formato: codigo|nome|idLoja|status|responsavel|criadoEm|etapaAutointegracao|tagsRED|gmap)
-var UPDATED="2026-11-18";
+// DADOS (formato: codigo|nome|idLoja|status|responsavel|criadoEm|etapaAutointegracao|tagsRed|gmap)
+var UPDATED="2026-11-19";
 var DATA=[
-"68307575|Baê Donuts|159626350|Claimed|Paloma Ferreira da Silva|2026-11-15 20:40|Contract signed||0",
-"67433919|Bem Docinho Açaí|159624413|Cooperating|Paloma Ferreira da Silva|2026-11-10 17:53|Contract signed||0",
-"67592122|Family burger|-1|Claimed|João Victor Souza de Oliveira|2026-11-10 16:59|Account registered||0",
-"67372175|Matsuri sushi bar|-1|Claimed|bdthyago|2026-11-09 21:38|Qualifications verified||0",
-"67387813|GastroNave|159614483|Entering|JOÃO VICTOR BUSSOLO DAL PONT|2026-11-08 22:26|Contract signed||0",
-"67318248|Atelierlunacakes|159652827|Cooperating|Paloma Ferreira da Silva|2026-11-08 12:58|Contract signed|Red Full service|0",
-"67367739|LetiSophy Confeitaria|159647087|Pre-opening|Paloma Ferreira da Silva|2026-11-06 13:50|Contract signed|Red Full service|0",
-"67269598|Açaí lab|-1|Claimed|João Victor Souza de Oliveira|2026-11-05 23:05|Account registered||0",
-"67561105|Tartaruga lanche|-1|Claimed|João Victor Souza de Oliveira|2026-11-05 20:12|Account registered||0",
-"67133920|Confeitaria Wômeli|-1|Claimed|Fernando Marques Cavalcanti|2026-11-05 07:21|Account registered||0",
-"67122632|Nha Benta Doces|159645975|Cooperating|Lays Fabiola Bueno|2026-11-04 14:16|Contract signed||0",
-"67162411|60 Sabores Artesanal Criciuma|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2026-11-04 07:51|Qualifications verified|Red Full service|1",
-"67112209|Mazali Frango Frito|-1|Claimed|Paloma Ferreira da Silva|2026-11-02 17:08|Qualifications verified||0",
-"67052641|jm marmitas|-1|Claimed|Leandro Rodrigues|2026-11-02 10:32|Account registered||0",
-"67277388|Gauderio lanches|-1|Claimed|Leandro Rodrigues|2026-11-02 05:25|Account registered||0",
-"67112157|Garten Bier Lanches e Hamburgueria|159623276|Entering|Peterson Gabriel Nunes Amaro|2026-11-02 04:05|Contract signed||0",
-"67151789|EM DOCES E SALGADOS CASEIROS|-1|Claimed|Paloma Ferreira da Silva|2026-10-31 04:20|Account registered|Red Full service|0",
-"67260761|M e J Cafeteria|159636217|Entering|GUILHERME MARGOTTI SONBRIO|2026-10-29 16:21|Contract signed||0",
-"67241675|Açaí da Ruiva|159636239|Cooperating|Paloma Ferreira da Silva|2026-10-28 21:08|Account registered|RED Marketplace|0",
-"67558840|Kallil Esfiharia|159659517|Cooperating|Paloma Ferreira da Silva|2026-10-27 19:22|Contract signed|Red Full service|0",
-"67091878|Divina restaurante|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2026-10-27 18:30|Qualifications verified||0",
-"67034501|Di Geraldo Forneria|159631330|Pre-opening|Paloma Ferreira da Silva|2026-10-27 18:04|Account registered|RED Marketplace|1",
-"67211691|Batatchê|-1|Claimed|Fernando Marques Cavalcanti|2026-10-26 22:21|Qualification rejected||0",
-"67286380|Bb Burguer|-1|Unclaimed|-|2026-10-26 21:25|Account registered||0",
-"67052029|Santo Burguer|159614279|Cooperating|Fernando Marques Cavalcanti|2026-10-25 12:30|Account registered|RED Marketplace|0",
-"67241337|De mãe para filha|159624305|Cooperating|Lays Fabiola Bueno|2026-10-23 16:07|Account registered|Red Full service|1",
-"67161235|Delícia gelada|159655594|Cooperating|Patrick Dorneles|2026-10-22 18:58|Account registered||0",
-"67286173|Lancheria delícia gelada|-1|Unclaimed|-|2026-10-22 18:40|Account registered||0",
-"67151248|Casa deck pizzaria|-1|Unclaimed|-|2026-10-22 12:30|Account registered||1",
-"67231235|SUBBOSS|-1|Claimed|Paloma Ferreira da Silva|2026-10-22 02:27|Account registered||0",
-"67051781|Quitutes de casa|159652779|Cooperating|Paloma Ferreira da Silva|2026-10-21 21:48|Account registered|Red Full service|0",
-"67286092|Bistro chef|159631423|Entering|Paloma Ferreira da Silva|2026-10-21 17:19|Account registered||0",
-"67061737|BATMAN BURGUER|-1|Unclaimed|-|2026-10-20 20:00|Account registered||0",
-"67266807|Paula’S Marmitas|159640387|Claimed|Paloma Ferreira da Silva|2026-10-19 18:03|Account registered|Red Full service|0",
-"67051581|Duo açaí|-1|Claimed|Paloma Ferreira da Silva|2026-10-19 00:00|Account registered|Red Full service|0",
-"67160992|Doces da Kah|-1|Unclaimed|-|2026-10-18 19:50|Account registered||0",
-"67190724|Rabelo pastéis|-1|Claimed|Lays Fabiola Bueno|2026-10-18 19:17|Account registered||0",
-"67260054|Beco lanches|159645060|Cooperating|Paloma Ferreira da Silva|2026-10-18 18:58|Account registered||0",
-"67081434|doceriabrunasouza|159625095|Cooperating|GUILHERME MARGOTTI SONBRIO|2026-10-18 16:48|Account registered|Red Full service,RED,Red promo item|1",
-"67260012|Barões do Açaí|159626071|Cooperating|JOÃO VICTOR BUSSOLO DAL PONT|2026-10-17 18:05|Account registered||0",
-"67061527|DOCES DE ALICE|-1|Claimed|Patrick Dorneles|2026-10-16 16:12|Account registered|Red Full service|0",
-"67211109|Play conveniência 24 horas Rio Maina|159648750|Cooperating|Fernando Marques Cavalcanti|2026-10-16 16:07|Account registered||1",
-"67250557|Doces e salgados da jéh|-1|Unclaimed|-|2026-10-16 09:21|Account registered||0",
-"67259896|Sweet House Sabores|-1|Unclaimed|-|2026-10-15 22:52|Account registered||0",
-"67041574|Toca do mineiro|159639221|Unclaimed|-|2026-10-15 20:17|Account registered||0",
-"67266559|Eo gole lanche|-1|Claimed|Paloma Ferreira da Silva|2026-10-15 19:05|Account registered||0",
-"67071314|Dahlli Pizza & Sabor|159618207|Cooperating|Fernando Marques Cavalcanti|2026-10-15 05:21|Account registered|RED Marketplace|0",
-"67180649|Marmitas e panquecas|159644939|Unclaimed|-|2026-10-14 21:42|Account registered||0",
-"67160729|Chef Iara Pasta e Pizza|159645808|Cooperating|GUILHERME MARGOTTI SONBRIO|2026-10-14 10:57|Account registered|RED Marketplace|1",
-"67170616|Cris bolos e doces|-1|Unclaimed|-|2026-10-13 23:01|Account registered|RED Marketplace|0",
-"67196786|Nina Sem Gluten|-1|Claimed|Lays Fabiola Bueno|2026-10-08 06:05|Account registered||0",
-"67095610|Pão Na Chapa|159619280|Entering|Paloma Ferreira da Silva|2026-10-08 02:49|Contract signed|RED Marketplace|0",
-"67055980|Açaí da Dani|-1|Unclaimed|-|2026-10-08 02:31|Account registered|Red Full service|0",
-"66518595|Chama No Zap Pizzas e Lanches|-1|Claimed|Diogo Vinicius Bottini|2026-10-04 04:21|Account registered||1",
-"66572122|Sammy's Food|-1|Unclaimed|-|2026-09-25 05:57|Account registered|RED Marketplace|0",
-"64726769|Secrets Chocolate|-1|Claimed|Paloma Ferreira da Silva|2026-09-17 04:14|Account registered|Red Full service|1",
-"64835233|Family burger|159631354|Cooperating|Lays Fabiola Bueno|2026-09-10 03:10|Contract signed|Red Full service|0",
-"62865237|Du bom delivery|159618401|Cooperating|Fernando Marques Cavalcanti|2026-08-31 07:07|Contract signed|RED Marketplace,Red promo item|0",
-"62944514|Lanches e Batata Recheada|159618002|Cooperating|Paloma Ferreira da Silva|2026-08-31 07:03|Account registered|RED Marketplace,Red promo item|0",
-"62681737|Sousa Lanches & Açaí|159631210|Cooperating|Fernando Marques Cavalcanti|2026-08-15 22:07|Account registered|RED Marketplace,Red promo item|1",
-"62592259|Pastel|159619197|Cooperating|Patrick Dorneles|2026-08-15 18:59|Account registered|Red Full service|0",
-"62425022|Loco Point|159645978|Pre-opening|Lays Fabiola Bueno|2026-08-15 06:02|Contract signed|Red Full service,Red promo item|1",
-"60701435|Lanches da Marcia|159647984|Cooperating|Patrick Dorneles|2026-07-22 15:59|Account registered|RED Marketplace|1",
-"60701422|Lc Bolos e Doces|-1|Claimed|Jackson Oliveira|2026-07-22 15:01|Account registered|RED Marketplace,Red promo item|0",
-"61032799|Bela Casa Marmitas e Pizzaria|159652764|Pre-opening|João Victor Souza de Oliveira|2026-07-22 10:44|Contract signed|RED Marketplace|0",
-"60728147|Andresa Flores da Silva|-1|Unclaimed|-|2026-07-11 16:29|Account registered||0",
-"60474552|Da Mammy comida caseira|159655770|Claimed|Paloma Ferreira da Silva|2026-07-04 17:09|Contract signed|RED Marketplace,RED,Red promo item|1",
-"60198519|Te Gusta Burguer|-1|Unclaimed|-|2026-07-04 16:47|Account registered|Red Full service,Red promo item|0",
-"60268321|Benditô Bbq|-1|Unclaimed|-|2026-07-04 15:28|Account registered|Red Full service,Red promo item|0",
-"60108319|KING AÇAI|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2026-07-04 13:36|Account registered|RED Marketplace,Red promo item|1",
-"60288299|Southbeer conveniência e pub|159645058|Pre-opening|Peterson Gabriel Nunes Amaro|2026-07-04 13:19|Contract signed|Red Full service,Red promo item|0",
-"60137966|Brutos Espetinho|159620281|Cooperating|GUILHERME MARGOTTI SONBRIO|2026-07-04 13:13|Account registered|Red Full service,Red promo item|1",
-"61021884|Lila Bolos e Bolachas|-1|Claimed|Jackson Oliveira|2026-07-04 13:10|Account registered|Red Full service|0",
-"61011773|Mahlu Lanches - X Gaúcho|159647943|Cooperating|Paloma Ferreira da Silva|2026-07-04 12:24|Contract signed|RED Marketplace|1",
-"60307983|Doces da Vih Confeitaria|159614373|Claimed|João Victor Souza de Oliveira|2026-07-04 11:58|Account registered|Red Full service|1",
-"60157917|Flatmate's Rolls & Coffee|-1|Claimed|Thiago de Freitas Dutra|2026-07-04 10:30|Account registered|Red Full service|1",
-"60473861|Big Dog Prensadão|159646034|Cooperating|Paloma Ferreira da Silva|2026-07-04 10:29|Contract signed||1",
-"60304669|Mia Pizza|-1|Unclaimed|-|2026-04-26 23:16|Account registered|Red Full service|0",
-"60419445|AÇAÍ Gourmet Delivery|-1|Claimed|方景涛|2026-04-24 13:30|Account registered||0",
-"60123627|Restaurante do Careca|159618259|Cooperating|Fernando Marques Cavalcanti|2026-03-27 13:37|Account registered|RED Marketplace,RED,Red promo item|1",
-"60171437|Burguer Cósmico|159619351|Entering|Paloma Ferreira da Silva|2026-01-24 12:48|Contract signed|Red Full service,Red promo item|1",
-"51588798|Golden Chicken frango no pote|159616422|Claimed|Fernando Marques Cavalcanti|2025-10-18 12:40|Account registered||1",
-"51558973|Tritt's Lanches|-1|Claimed|Jackson Oliveira|2025-10-18 11:43|Qualifications verified|Red Full service,RED,Red promo item|1",
-"51555807|Restaurante Dona Eva|-1|Claimed|Paloma Ferreira da Silva|2025-10-18 11:37|Account registered||1",
-"51543901|Oxente delivery criciuma|159655579|Cooperating|Paloma Ferreira da Silva|2025-10-18 11:14|Account registered|Red Full service|1",
-"51533172|WFC Frango Frito - Criciúma|159608374|Cooperating|Patrick Dorneles|2025-10-18 10:54|Account registered|RED Marketplace,RED,Red promo item|1",
-"51528665|Casa da Carne e Restaurante - Rio Maina|159624277|Cooperating|Fernando Marques Cavalcanti|2025-10-18 10:45|Account registered||1",
-"51522553|Miss lanches|159640003|Cooperating|Patrick Dorneles|2025-10-18 10:33|Account registered|Red Full service,RED|1",
-"51501915|Santo Álcool|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2025-10-15 12:38|Account registered||1",
-"51478287|Pizza Halley|159641075|Cooperating|Fernando Marques Cavalcanti|2025-10-14 16:11|Account registered|RED Marketplace|1",
-"51362374|Cantinho Grill|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2025-10-13 01:26|Account registered||0",
-"51227031|Pizzaria Lima|-1|Claimed|Lays Fabiola Bueno|2025-08-07 23:29|Account registered||0",
-"51228028|Pizzaria Lima|-1|Claimed|Lays Fabiola Bueno|2025-08-07 23:27|Account registered|RED Marketplace|0",
-"51185635|Klicks Sushi (entrega Rápida)|159659420|Cooperating|Paloma Ferreira da Silva|2025-07-31 22:48|Account registered|RED Marketplace,Red promo item|1",
-"51113516|Elis Salgados e Doces|159633059|Cooperating|JOÃO VICTOR BUSSOLO DAL PONT|2025-07-31 06:13|Account registered|Red Full service,RED,Red promo item|0",
-"51098571|Skindeki Sushi Delivery (ENTREGA GRATIS ATE 5KM)|-1|Claimed|Paloma Ferreira da Silva|2025-07-31 04:53|Account registered|RED Marketplace,Red promo item|1",
-"51092577|Hamburgueria & Tábuas de Carnes Dumon - Tradição Exelência|159613694|Cooperating|Peterson Gabriel Nunes Amaro|2025-07-31 04:20|Account registered|RED Marketplace,Red promo item|1",
-"51061749|Cozinha da Ju|159643334|Cooperating|Jackson Oliveira|2025-07-31 01:34|Account registered|RED Marketplace,RED,Red promo item|0",
-"51026125|Kasquita Sorvetes|159647991|Cooperating|Fernando Marques Cavalcanti|2025-07-30 22:20|Contract signed|Red Full service|0",
-"51012092|Miss Glacê Confeitaria|159631453|Entering|GUILHERME MARGOTTI SONBRIO|2025-07-30 21:05|Account registered|Red Full service,RED,Red promo item|0",
-"50991875|Monastério Burger & Beer|159655706|Claimed|Paloma Ferreira da Silva|2025-07-30 19:16|Account registered|Red Full service|1",
-"50985332|Confeitaria Wômeli|-1|Claimed|João Victor Souza de Oliveira|2025-07-30 18:41|Qualification uploaded|RED Marketplace,RED|0"
+"68168146|MH conveniência Criciúma|-1|Claimed|João Victor Souza de Oliveira|2026-11-19|Account registered||0",
+"68436420|MH conveniência lancheria|159655873|Claimed|João Victor Souza de Oliveira|2026-11-18|Contract signed||0",
+"68307575|Baê Donuts|159626350|Claimed|Paloma Ferreira da Silva|2026-11-15|Contract signed||0",
+"67433919|Bem Docinho Açaí|159624413|Cooperating|Paloma Ferreira da Silva|2026-11-10|Contract signed||0",
+"67592122|Family burger|-1|Claimed|João Victor Souza de Oliveira|2026-11-10|Account registered||0",
+"67372175|Matsuri sushi bar|-1|Claimed|bdthyago|2026-11-09|Qualifications verified||0",
+"67387813|GastroNave|159614483|Entering|JOÃO VICTOR BUSSOLO DAL PONT|2026-11-08|Contract signed||0",
+"67318248|Atelierlunacakes|159652827|Cooperating|Paloma Ferreira da Silva|2026-11-08|Contract signed|Red Full service|0",
+"67367739|LetiSophy Confeitaria|159647087|Pre-opening|Paloma Ferreira da Silva|2026-11-06|Contract signed|Red Full service|0",
+"67269598|Açaí lab|-1|Claimed|João Victor Souza de Oliveira|2026-11-05|Account registered||0",
+"67561105|Tartaruga lanche|-1|Claimed|João Victor Souza de Oliveira|2026-11-05|Account registered||0",
+"67133920|Confeitaria Wômeli|-1|Claimed|Fernando Marques Cavalcanti|2026-11-05|Account registered||0",
+"67122632|Nha Benta Doces|159645975|Cooperating|Lays Fabiola Bueno|2026-11-04|Contract signed||0",
+"67162411|60 Sabores Artesanal Criciuma|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2026-11-04|Qualifications verified|Red Full service|1",
+"67112209|Mazali Frango Frito|-1|Claimed|Paloma Ferreira da Silva|2026-11-02|Qualifications verified||0",
+"67052641|jm marmitas|-1|Claimed|Leandro Rodrigues|2026-11-02|Account registered||0",
+"67277388|Gauderio lanches|-1|Claimed|Leandro Rodrigues|2026-11-02|Account registered||0",
+"67112157|Garten Bier Lanches e Hamburgueria|159623276|Entering|Peterson Gabriel Nunes Amaro|2026-11-02|Contract signed||0",
+"67151789|EM DOCES E SALGADOS CASEIROS|-1|Claimed|Paloma Ferreira da Silva|2026-10-31|Account registered|Red Full service|0",
+"67260761|M e J Cafeteria|159636217|Entering|GUILHERME MARGOTTI SONBRIO|2026-10-29|Contract signed||0",
+"67241675|Açaí da Ruiva|159636239|Cooperating|Paloma Ferreira da Silva|2026-10-28|Account registered|RED Marketplace|0",
+"67558840|Kallil Esfiharia|159659517|Cooperating|Paloma Ferreira da Silva|2026-10-27|Contract signed|Red Full service|0",
+"67091878|Divina restaurante|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2026-10-27|Qualifications verified||0",
+"67034501|Di Geraldo Forneria|159631330|Pre-opening|Paloma Ferreira da Silva|2026-10-27|Account registered|RED Marketplace|1",
+"67211691|Batatchê|-1|Claimed|Fernando Marques Cavalcanti|2026-10-26|Qualification rejected||0",
+"67286380|Bb Burguer|-1|Unclaimed|-|2026-10-26|Account registered||0",
+"67052029|Santo Burguer|159614279|Cooperating|Fernando Marques Cavalcanti|2026-10-25|Account registered|RED Marketplace|0",
+"67241337|De mãe para filha|159624305|Cooperating|Lays Fabiola Bueno|2026-10-23|Account registered|Red Full service|1",
+"67161235|Delícia gelada|159655594|Cooperating|Patrick Dorneles|2026-10-22|Account registered||0",
+"67286173|Lancheria delícia gelada|-1|Unclaimed|-|2026-10-22|Account registered||0",
+"67151248|Casa deck pizzaria|-1|Unclaimed|-|2026-10-22|Account registered||1",
+"67231235|SUBBOSS|-1|Claimed|Paloma Ferreira da Silva|2026-10-22|Account registered||0",
+"67051781|Quitutes de casa|159652779|Cooperating|Paloma Ferreira da Silva|2026-10-21|Account registered|Red Full service|0",
+"67286092|Bistro chef|159631423|Pre-opening|Paloma Ferreira da Silva|2026-10-21|Account registered||0",
+"67061737|BATMAN BURGUER|-1|Unclaimed|-|2026-10-20|Account registered||0",
+"67266807|Paula’S Marmitas|159640387|Claimed|Paloma Ferreira da Silva|2026-10-19|Account registered|Red Full service|0",
+"67051581|Duo açaí|-1|Claimed|Paloma Ferreira da Silva|2026-10-19|Account registered|Red Full service|0",
+"67160992|Doces da Kah|-1|Unclaimed|-|2026-10-18|Account registered||0",
+"67190724|Rabelo pastéis|-1|Claimed|Lays Fabiola Bueno|2026-10-18|Account registered||0",
+"67260054|Beco lanches|159645060|Cooperating|Paloma Ferreira da Silva|2026-10-18|Account registered||0",
+"67081434|doceriabrunasouza|159625095|Cooperating|GUILHERME MARGOTTI SONBRIO|2026-10-18|Account registered|Red Full service,RED,Red promo item|1",
+"67260012|Barões do Açaí|159626071|Cooperating|JOÃO VICTOR BUSSOLO DAL PONT|2026-10-17|Account registered||0",
+"67061527|DOCES DE ALICE|-1|Claimed|Patrick Dorneles|2026-10-16|Account registered|Red Full service|0",
+"67211109|Play conveniência 24 horas Rio Maina|159648750|Cooperating|Fernando Marques Cavalcanti|2026-10-16|Account registered||1",
+"67250557|Doces e salgados da jéh|-1|Unclaimed|-|2026-10-16|Account registered||0",
+"67259896|Sweet House Sabores|-1|Unclaimed|-|2026-10-15|Account registered||0",
+"67041574|Toca do mineiro|159639221|Unclaimed|-|2026-10-15|Account registered||0",
+"67266559|Eo gole lanche|-1|Claimed|Paloma Ferreira da Silva|2026-10-15|Account registered||0",
+"67071314|Dahlli Pizza & Sabor|159618207|Cooperating|Fernando Marques Cavalcanti|2026-10-15|Account registered|RED Marketplace|0",
+"67180649|Marmitas e panquecas|159644939|Unclaimed|-|2026-10-14|Account registered||0",
+"67160729|Chef Iara Pasta e Pizza|159645808|Cooperating|GUILHERME MARGOTTI SONBRIO|2026-10-14|Account registered|RED Marketplace|1",
+"67170616|Cris bolos e doces|-1|Unclaimed|-|2026-10-13|Account registered|RED Marketplace|0",
+"67196786|Nina Sem Gluten|-1|Claimed|Lays Fabiola Bueno|2026-10-08|Account registered||0",
+"67095610|Pão Na Chapa|159619280|Entering|Paloma Ferreira da Silva|2026-10-08|Contract signed|RED Marketplace|0",
+"67055980|Açaí da Dani|-1|Unclaimed|-|2026-10-08|Account registered|Red Full service|0",
+"66518595|Chama No Zap Pizzas e Lanches|-1|Claimed|Diogo Vinicius Bottini|2026-10-04|Account registered||1",
+"66572122|Sammy's Food|-1|Unclaimed|-|2026-09-25|Account registered|RED Marketplace|0",
+"64726769|Secrets Chocolate|-1|Claimed|Paloma Ferreira da Silva|2026-09-17|Account registered|Red Full service|1",
+"64835233|Family burger|159631354|Cooperating|Lays Fabiola Bueno|2026-09-10|Contract signed|Red Full service|0",
+"62865237|Du bom delivery|159618401|Cooperating|Fernando Marques Cavalcanti|2026-08-31|Contract signed|RED Marketplace,Red promo item|0",
+"62944514|Lanches e Batata Recheada|159618002|Cooperating|Paloma Ferreira da Silva|2026-08-31|Account registered|RED Marketplace,Red promo item|0",
+"62681737|Sousa Lanches & Açaí|159631210|Cooperating|Fernando Marques Cavalcanti|2026-08-15|Account registered|RED Marketplace,Red promo item|1",
+"62592259|Pastel|159619197|Cooperating|Patrick Dorneles|2026-08-15|Account registered|Red Full service|0",
+"62425022|Loco Point|159645978|Pre-opening|JOÃO VICTOR BUSSOLO DAL PONT|2026-08-15|Contract signed|Red Full service,Red promo item|1",
+"60701435|Lanches da Marcia|159647984|Cooperating|Patrick Dorneles|2026-07-22|Account registered|RED Marketplace|1",
+"60701422|Lc Bolos e Doces|-1|Claimed|Jackson Oliveira|2026-07-22|Account registered|RED Marketplace,Red promo item|0",
+"61032799|Bela Casa Marmitas e Pizzaria|159652764|Pre-opening|João Victor Souza de Oliveira|2026-07-22|Contract signed|RED Marketplace|0",
+"60728147|Andresa Flores da Silva|-1|Unclaimed|-|2026-07-11|Account registered||0",
+"60474552|Da Mammy comida caseira|159655770|Claimed|Paloma Ferreira da Silva|2026-07-04|Contract signed|RED Marketplace,RED,Red promo item|1",
+"60198519|Te Gusta Burguer|-1|Unclaimed|-|2026-07-04|Account registered|Red Full service,Red promo item|0",
+"60268321|Benditô Bbq|-1|Unclaimed|-|2026-07-04|Account registered|Red Full service,Red promo item|0",
+"60108319|KING AÇAI|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2026-07-04|Account registered|RED Marketplace,Red promo item|1",
+"60288299|Southbeer conveniência e pub|159645058|Pre-opening|Peterson Gabriel Nunes Amaro|2026-07-04|Contract signed|Red Full service,Red promo item|0",
+"60137966|Brutos Espetinho|159620281|Cooperating|GUILHERME MARGOTTI SONBRIO|2026-07-04|Account registered|Red Full service,Red promo item|1",
+"61021884|Lila Bolos e Bolachas|-1|Claimed|Fernando Marques Cavalcanti|2026-07-04|Account registered|Red Full service|0",
+"61011773|Mahlu Lanches - X Gaúcho|159647943|Cooperating|Paloma Ferreira da Silva|2026-07-04|Contract signed|RED Marketplace|1",
+"60307983|Doces da Vih Confeitaria|159614373|Claimed|João Victor Souza de Oliveira|2026-07-04|Account registered|Red Full service|1",
+"60157917|Flatmate's Rolls & Coffee|-1|Claimed|Thiago de Freitas Dutra|2026-07-04|Account registered|Red Full service|1",
+"60473861|Big Dog Prensadão|159646034|Cooperating|Paloma Ferreira da Silva|2026-07-04|Contract signed||1",
+"60304669|Mia Pizza|-1|Unclaimed|-|2026-04-26|Account registered|Red Full service|0",
+"60419445|AÇAÍ Gourmet Delivery|-1|Claimed|方景涛|2026-04-24|Account registered||0",
+"60123627|Restaurante do Careca|159618259|Cooperating|Fernando Marques Cavalcanti|2026-03-27|Account registered|RED Marketplace,RED,Red promo item|1",
+"60171437|Burguer Cósmico|159619351|Entering|Paloma Ferreira da Silva|2026-01-24|Contract signed|Red Full service,Red promo item|1",
+"51588798|Golden Chicken frango no pote|159616422|Claimed|Fernando Marques Cavalcanti|2025-10-18|Account registered||1",
+"51558973|Tritt's Lanches|-1|Claimed|Jackson Oliveira|2025-10-18|Qualifications verified|Red Full service,RED,Red promo item|1",
+"51555807|Restaurante Dona Eva|-1|Claimed|Paloma Ferreira da Silva|2025-10-18|Account registered||1",
+"51543901|Oxente delivery criciuma|159655579|Cooperating|Paloma Ferreira da Silva|2025-10-18|Account registered|Red Full service|1",
+"51533172|WFC Frango Frito - Criciúma|159608374|Cooperating|Patrick Dorneles|2025-10-18|Account registered|RED Marketplace,RED,Red promo item|1",
+"51528665|Casa da Carne e Restaurante - Rio Maina|159624277|Cooperating|Fernando Marques Cavalcanti|2025-10-18|Account registered||1",
+"51522553|Miss lanches|159640003|Cooperating|Patrick Dorneles|2025-10-18|Account registered|Red Full service,RED|1",
+"51501915|Santo Álcool|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2025-10-15|Account registered||1",
+"51478287|Pizza Halley|159641075|Cooperating|Fernando Marques Cavalcanti|2025-10-14|Account registered|RED Marketplace|1",
+"51362374|Cantinho Grill|-1|Claimed|GUILHERME MARGOTTI SONBRIO|2025-10-13|Account registered||0",
+"51227031|Pizzaria Lima|-1|Claimed|Lays Fabiola Bueno|2025-08-07|Account registered||0",
+"51228028|Pizzaria Lima|-1|Claimed|Lays Fabiola Bueno|2025-08-07|Account registered|RED Marketplace|0",
+"51185635|Klicks Sushi (entrega Rápida)|159659420|Cooperating|Paloma Ferreira da Silva|2025-07-31|Account registered|RED Marketplace,Red promo item|1",
+"51113516|Elis Salgados e Doces|159633059|Cooperating|JOÃO VICTOR BUSSOLO DAL PONT|2025-07-31|Account registered|Red Full service,RED,Red promo item|0",
+"51098571|Skindeki Sushi Delivery (ENTREGA GRATIS ATE 5KM)|-1|Claimed|Paloma Ferreira da Silva|2025-07-31|Account registered|RED Marketplace,Red promo item|1",
+"51092577|Hamburgueria & Tábuas de Carnes Dumon - Tradição Exelência|159613694|Cooperating|Peterson Gabriel Nunes Amaro|2025-07-31|Account registered|RED Marketplace,Red promo item|1",
+"51061749|Cozinha da Ju|159643334|Cooperating|Jackson Oliveira|2025-07-31|Account registered|RED Marketplace,RED|0",
+"51026125|Kasquita Sorvetes|159647991|Cooperating|Fernando Marques Cavalcanti|2025-07-30|Contract signed|Red Full service|0",
+"51012092|Miss Glacê Confeitaria|159631453|Entering|GUILHERME MARGOTTI SONBRIO|2025-07-30|Account registered|Red Full service,RED|0",
+"50991875|Monastério Burger & Beer|159655706|Pre-opening|Paloma Ferreira da Silva|2025-07-30|Account registered|Red Full service|1",
+"50985332|Confeitaria Wômeli|-1|Claimed|João Victor Souza de Oliveira|2025-07-30|Qualification uploaded|RED Marketplace,RED|0"
 ];
+
+// Tradução PT (mantém "Red" como palavra)
+var TRAD={
+  "Claimed":"Reivindicado","Unclaimed":"Não reivindicado","Cooperating":"Cooperando",
+  "Entering":"Entrando","Pre-opening":"Pré-abertura",
+  "Account registered":"Conta registrada","Contract signed":"Contrato assinado",
+  "Qualification rejected":"Documentos rejeitados","Qualification uploaded":"Documentos enviados",
+  "Qualifications verified":"Documentos verificados",
+  "Red Full service":"Red Serviço completo","RED Marketplace":"Red Marketplace",
+  "Red promo item":"Red item promocional","RED":"Red"
+};
+function tr(s){if(TRAD[s]!==undefined){return TRAD[s]}return s}
+function trRed(s){var parts=String(s).split(',');var out=[];for(var i=0;i<parts.length;i++){out.push(tr(parts[i].trim()))}return out.join(' · ')}
 
 var LS='keeta_criciuma_visitas';
 document.getElementById('uptd').textContent=UPDATED;
 
 var LEADS=DATA.map(function(r,i){
   var p=r.split('|');
-  return {id:p[0],name:p[1],poi:p[2]==='-1'?'':p[2],status:p[3],own:p[4]==='-'?'':p[4],
+  var own=p[4]; if(own==='-'||own===''){own=''}
+  return {id:p[0],name:p[1],poi:p[2]==='-1'?'':p[2],status:p[3],own:own,
           dt:p[5],stage:p[6],red:p[7],gm:p[8]==='1',vis:getVis(p[0]),idx:i};
 });
 
@@ -243,7 +258,7 @@ function render(){
     if(fVis==='no'&&l.vis!=='Não')return false;
     if(fVis==='pend'&&l.vis!=='')return false;
     if(q){
-      var hay=(l.id+' '+l.name+' '+l.poi+' '+l.own+' '+l.status+' '+l.red).toLowerCase();
+      var hay=(l.id+' '+l.name+' '+l.poi+' '+l.own+' '+tr(l.status)+' '+tr(l.stage)+' '+trRed(l.red||'')).toLowerCase();
       if(hay.indexOf(q)<0)return false;
     }
     return true;
@@ -261,16 +276,16 @@ function render(){
       '<option value=""'+(l.vis===''?' selected':'')+'>—</option>'+
       '<option value="Sim"'+(l.vis==='Sim'?' selected':'')+'>Sim</option>'+
       '<option value="Não"'+(l.vis==='Não'?' selected':'')+'>Não</option></select>';
-    var redHtml=l.red?'<span class="badge b-red">'+esc(l.red.replace(/,/g,' · ').replace(/Red Full service/g,'Full service').replace(/Red promo item/g,'Promo item'))+'</span>':'<span class="b-dash">—</span>';
-    var gmHtml=l.gm?'<span class="badge b-gmap">GMap ✓</span>':'<span class="b-dash">—</span>';
+    var redHtml=l.red?'<span class="badge b-red">'+esc(trRed(l.red))+'</span>':'<span class="b-dash">—</span>';
+    var gmHtml=l.gm?'<span class="badge b-gmap">Google ✓</span>':'<span class="b-dash">—</span>';
     rows+='<tr>'+
       '<td class="mono">'+l.id+'</td>'+
       '<td class="name">'+esc(l.name)+'</td>'+
       '<td class="mono">'+(l.poi?l.poi:'<span class="b-dash">—</span>')+'</td>'+
-      '<td>'+esc(l.status)+'</td>'+
+      '<td>'+esc(tr(l.status))+'</td>'+
       '<td>'+esc(l.own||'—')+'</td>'+
       '<td class="date">'+esc(l.dt)+'</td>'+
-      '<td>'+(l.stage?'<span class="badge b-stage">'+esc(l.stage)+'</span>':'—')+'</td>'+
+      '<td>'+(l.stage?'<span class="badge b-stage">'+esc(tr(l.stage))+'</span>':'—')+'</td>'+
       '<td>'+redHtml+'</td>'+
       '<td>'+gmHtml+'</td>'+
       '<td>'+visSel+'</td>'+
@@ -285,6 +300,7 @@ function updateStats(){
   var vis=0,pend=0;
   LEADS.forEach(function(l){if(l.vis==='Sim'){vis++}else if(l.vis==='Não'){pend++}});
   document.getElementById('s-total').textContent=LEADS.length;
+  document.getElementById('s-cs').textContent=LEADS.filter(function(l){return l.stage==='Contract signed'}).length;
   document.getElementById('s-red').textContent=LEADS.filter(function(l){return l.red}).length;
   document.getElementById('s-gmap').textContent=LEADS.filter(function(l){return l.gm}).length;
   document.getElementById('s-vis').textContent=vis;
@@ -312,9 +328,9 @@ document.querySelectorAll('th.sortable').forEach(function(th){
 });
 
 document.getElementById('btn-csv').addEventListener('click',function(){
-  var lines=['Codigo;Nome;ID da Loja;Status;Responsavel;Criado em;Etapa autointegracao;Tags RED;Google GMap;Visitado'];
+  var lines=['Codigo;Nome;ID da Loja;Status;Responsavel;Criado em;Etapa autointegracao;Tags Red;Google GMap;Visitado'];
   LEADS.forEach(function(l){
-    lines.push([l.id,'"'+l.name.replace(/"/g,'""')+'"',l.poi||'-',l.status,'"'+(l.own||'-')+'"',l.dt,l.stage,'"'+(l.red||'')+'"',l.gm?'Sim':'Não',l.vis||'-'].join(';'));
+    lines.push([l.id,'"'+l.name.replace(/"/g,'""')+'"',l.poi||'-',tr(l.status),'"'+(l.own||'-')+'"',l.dt,'"'+tr(l.stage)+'"','"'+trRed(l.red||'')+'"',l.gm?'Sim':'Não',l.vis||'-'].join(';'));
   });
   download('leads_criciuma_'+UPDATED+'.csv','\ufeff'+lines.join('\n'),'text/csv');
 });
