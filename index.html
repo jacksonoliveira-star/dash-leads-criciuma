@@ -21,6 +21,8 @@ h1{font-size:22px;margin-bottom:4px}
 .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
 .stat.red .n{color:var(--red)} .stat.gmap .n{color:var(--blue)}
 .stat.ok .n{color:var(--green)} .stat.cs .n{color:#7c3aed}
+.stat.coop .n{color:#0891b2} .stat.pre .n{color:#d97706}
+input.obs{width:100%;min-width:180px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff}
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
 input[type=text]{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;min-width:260px}
 select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff}
@@ -56,24 +58,18 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
     <div class="stat cs"><div class="n" id="s-cs">0</div><div class="l">Contrato assinado</div></div>
     <div class="stat red"><div class="n" id="s-red">0</div><div class="l">Com tag Red</div></div>
     <div class="stat gmap"><div class="n" id="s-gmap">0</div><div class="l">Google (GMap)</div></div>
-    <div class="stat ok"><div class="n" id="s-vis">0</div><div class="l">Visitados</div></div>
-    <div class="stat"><div class="n" id="s-nvis">0</div><div class="l">Não visitados</div></div>
+    <div class="stat coop"><div class="n" id="s-coop">0</div><div class="l">Cooperando</div></div>
+    <div class="stat pre"><div class="n" id="s-pre">0</div><div class="l">Pré-abertura</div></div>
   </div>
 
   <div class="controls">
     <input type="text" id="q" placeholder="Buscar por código, nome, ID da loja, responsável...">
     <label class="chk"><input type="checkbox" id="f-red"> Só Red</label>
     <label class="chk"><input type="checkbox" id="f-gmap"> Só Google (GMap)</label>
-    <select id="f-vis">
-      <option value="all">Visita: todos</option>
-      <option value="yes">Visitados</option>
-      <option value="no">Não visitados</option>
-      <option value="pend">Pendente marcar</option>
-    </select>
     <span class="spacer"></span>
     <button id="btn-csv">Exportar CSV</button>
-    <button id="btn-bkp">Backup visitas (JSON)</button>
-    <button id="btn-imp">Importar visitas</button>
+    <button id="btn-bkp">Backup observações (JSON)</button>
+    <button id="btn-imp">Importar observações</button>
     <input type="file" id="file-vis" accept=".json" style="display:none">
   </div>
 
@@ -87,10 +83,9 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
         <th class="sortable" data-k="status">Status</th>
         <th class="sortable" data-k="own">Responsável</th>
         <th class="sortable" data-k="dt">Criado em</th>
-        <th class="sortable" data-k="stage">Etapa autointegração</th>
         <th class="sortable" data-k="red">Red</th>
         <th class="sortable" data-k="gm">Google</th>
-        <th>Visitado?</th>
+        <th>Observação</th>
       </tr>
     </thead>
     <tbody id="tb"></tbody>
@@ -98,7 +93,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
   </div>
   <div class="foot">
     <span id="count"></span>
-    <span>· Suas marcações de “Visitado” ficam salvas neste navegador (localStorage).</span>
+    <span>· Suas observações ficam salvas neste navegador (localStorage).</span>
   </div>
 </div>
 
@@ -225,20 +220,20 @@ var TRAD={
 function tr(s){if(TRAD[s]!==undefined){return TRAD[s]}return s}
 function trRed(s){var parts=String(s).split(',');var out=[];for(var i=0;i<parts.length;i++){out.push(tr(parts[i].trim()))}return out.join(' · ')}
 
-var LS='keeta_criciuma_visitas';
+var LS='keeta_criciuma_obs';
 document.getElementById('uptd').textContent=UPDATED;
 
 var LEADS=DATA.map(function(r,i){
   var p=r.split('|');
   var own=p[4]; if(own==='-'||own===''){own=''}
   return {id:p[0],name:p[1],poi:p[2]==='-1'?'':p[2],status:p[3],own:own,
-          dt:p[5],stage:p[6],red:p[7],gm:p[8]==='1',vis:getVis(p[0]),idx:i};
+          dt:p[5],stage:p[6],red:p[7],gm:p[8]==='1',obs:getObs(p[0]),idx:i};
 });
 
 function getStore(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
-function getVis(id){var s=getStore();return s[id]===undefined?'':s[id]}
-// persistência das marcações em localStorage
-function setVis(id,v){var s=getStore();if(v===''){delete s[id]}else{s[id]=v}localStorage.setItem(LS,JSON.stringify(s));}
+function getObs(id){var s=getStore();return s[id]===undefined?'':s[id]}
+// persistência das observações em localStorage
+function setObs(id,v){var s=getStore();if(v===''){delete s[id]}else{s[id]=v}localStorage.setItem(LS,JSON.stringify(s));}
 
 var sortKey='dt',sortDir=1;
 var NUMK={id:1,dt:1,idx:1,poi:1};
@@ -250,15 +245,11 @@ function render(){
   var q=document.getElementById('q').value.toLowerCase();
   var fRed=document.getElementById('f-red').checked;
   var fGm=document.getElementById('f-gmap').checked;
-  var fVis=document.getElementById('f-vis').value;
   var list=LEADS.filter(function(l){
     if(fRed&&!l.red)return false;
     if(fGm&&!l.gm)return false;
-    if(fVis==='yes'&&l.vis!=='Sim')return false;
-    if(fVis==='no'&&l.vis!=='Não')return false;
-    if(fVis==='pend'&&l.vis!=='')return false;
     if(q){
-      var hay=(l.id+' '+l.name+' '+l.poi+' '+l.own+' '+tr(l.status)+' '+tr(l.stage)+' '+trRed(l.red||'')).toLowerCase();
+      var hay=(l.id+' '+l.name+' '+l.poi+' '+l.own+' '+tr(l.status)+' '+trRed(l.red||'')+' '+(l.obs||'')).toLowerCase();
       if(hay.indexOf(q)<0)return false;
     }
     return true;
@@ -272,10 +263,7 @@ function render(){
   });
   var rows='';
   list.forEach(function(l){
-    var visSel='<select class="vis" onchange="mark(\''+l.id+'\',this.value)">'+
-      '<option value=""'+(l.vis===''?' selected':'')+'>—</option>'+
-      '<option value="Sim"'+(l.vis==='Sim'?' selected':'')+'>Sim</option>'+
-      '<option value="Não"'+(l.vis==='Não'?' selected':'')+'>Não</option></select>';
+    var obsInput='<input type="text" class="obs" value="'+esc(l.obs||'').replace(/"/g,'&quot;')+'" onchange="markObs(\''+l.id+'\',this.value)" placeholder="—">';
     var redHtml=l.red?'<span class="badge b-red">'+esc(trRed(l.red))+'</span>':'<span class="b-dash">—</span>';
     var gmHtml=l.gm?'<span class="badge b-gmap">Google ✓</span>':'<span class="b-dash">—</span>';
     rows+='<tr>'+
@@ -285,10 +273,9 @@ function render(){
       '<td>'+esc(tr(l.status))+'</td>'+
       '<td>'+esc(l.own||'—')+'</td>'+
       '<td class="date">'+esc(l.dt)+'</td>'+
-      '<td>'+(l.stage?'<span class="badge b-stage">'+esc(tr(l.stage))+'</span>':'—')+'</td>'+
       '<td>'+redHtml+'</td>'+
       '<td>'+gmHtml+'</td>'+
-      '<td>'+visSel+'</td>'+
+      '<td>'+obsInput+'</td>'+
     '</tr>';
   });
   tb.innerHTML=rows;
@@ -297,24 +284,22 @@ function render(){
 }
 
 function updateStats(){
-  var vis=0,pend=0;
-  LEADS.forEach(function(l){if(l.vis==='Sim'){vis++}else if(l.vis==='Não'){pend++}});
   document.getElementById('s-total').textContent=LEADS.length;
   document.getElementById('s-cs').textContent=LEADS.filter(function(l){return l.stage==='Contract signed'}).length;
+  document.getElementById('s-coop').textContent=LEADS.filter(function(l){return l.status==='Cooperating'}).length;
+  document.getElementById('s-pre').textContent=LEADS.filter(function(l){return l.status==='Pre-opening'}).length;
   document.getElementById('s-red').textContent=LEADS.filter(function(l){return l.red}).length;
   document.getElementById('s-gmap').textContent=LEADS.filter(function(l){return l.gm}).length;
-  document.getElementById('s-vis').textContent=vis;
-  document.getElementById('s-nvis').textContent=pend;
 }
 
-function mark(id,v){
-  setVis(id,v);
-  LEADS.forEach(function(l){if(l.id===id){l.vis=v}});
-  render();
+function markObs(id,v){
+  setObs(id,v);
+  LEADS.forEach(function(l){if(l.id===id){l.obs=v}});
+  updateStats();
 }
-window.mark=mark;
+window.markObs=markObs;
 
-['q','f-red','f-gmap','f-vis'].forEach(function(idf){
+['q','f-red','f-gmap'].forEach(function(idf){
   var el=document.getElementById(idf);
   el.addEventListener('input',render);el.addEventListener('change',render);
 });
@@ -328,14 +313,14 @@ document.querySelectorAll('th.sortable').forEach(function(th){
 });
 
 document.getElementById('btn-csv').addEventListener('click',function(){
-  var lines=['Codigo;Nome;ID da Loja;Status;Responsavel;Criado em;Etapa autointegracao;Tags Red;Google GMap;Visitado'];
+  var lines=['Codigo;Nome;ID da Loja;Status;Responsavel;Criado em;Tags Red;Google GMap;Observacao'];
   LEADS.forEach(function(l){
-    lines.push([l.id,'"'+l.name.replace(/"/g,'""')+'"',l.poi||'-',tr(l.status),'"'+(l.own||'-')+'"',l.dt,'"'+tr(l.stage)+'"','"'+trRed(l.red||'')+'"',l.gm?'Sim':'Não',l.vis||'-'].join(';'));
+    lines.push([l.id,'"'+l.name.replace(/"/g,'""')+'"',l.poi||'-',tr(l.status),'"'+(l.own||'-')+'"',l.dt,'"'+trRed(l.red||'')+'"',l.gm?'Sim':'Não','"'+(l.obs||'')+'"'].join(';'));
   });
   download('leads_criciuma_'+UPDATED+'.csv','\ufeff'+lines.join('\n'),'text/csv');
 });
 document.getElementById('btn-bkp').addEventListener('click',function(){
-  download('visitas_criciuma_backup.json',JSON.stringify(getStore(),null,2),'application/json');
+  download('obs_criciuma_backup.json',JSON.stringify(getStore(),null,2),'application/json');
 });
 document.getElementById('btn-imp').addEventListener('click',function(){
   document.getElementById('file-vis').click();
@@ -347,7 +332,7 @@ document.getElementById('file-vis').addEventListener('change',function(e){
     try{
       var s=JSON.parse(rd.result);
       localStorage.setItem(LS,JSON.stringify(s));
-      LEADS.forEach(function(l){l.vis=getVis(l.id)});
+      LEADS.forEach(function(l){l.obs=getObs(l.id)});
       render();
     }catch(err){alert('Arquivo inválido.')}
   };
