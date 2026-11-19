@@ -6,55 +6,70 @@
 <title>Dashboard Leads Criciúma · Autointegração via Site Oficial</title>
 <style>
 :root{
-  --bg:#f4f6fa; --card:#ffffff; --border:#e3e8f0; --text:#1f2937;
-  --muted:#6b7280; --red:#dc2626; --redbg:#fee2e2; --blue:#2563eb;
-  --bluebg:#dbeafe; --green:#16a34a; --greenbg:#dcfce7; --amberbg:#fef3c7;
+  --bg:#f5f5f7; --card:#ffffff; --border:#ececec;
+  --text:#111214; --muted:#86868b;
+  --yellow:#ffe41f; --yellow-deep:#ffd900; --yellow-soft:#fffbe0; --yellow-border:#efe04a;
+  --red:#e02b20; --redbg:#feecec; --blue:#2563eb; --bluebg:#e8effd;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px}
-.wrap{max-width:1400px;margin:0 auto}
-h1{font-size:22px;margin-bottom:4px}
-.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
-.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;min-width:140px}
-.stat .n{font-size:26px;font-weight:700}
-.stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:0 0 40px}
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:16px 0;margin-bottom:20px}
+.topbar .wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.logo{font-size:30px;font-weight:800;letter-spacing:-1.2px;line-height:1;display:flex;align-items:center;color:#111}
+.logo .dot{width:12px;height:12px;border-radius:3px;background:var(--yellow);margin-left:4px}
+.tb-title{font-size:16px;font-weight:700}
+.sub{color:var(--muted);font-size:12px;margin-top:3px}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 20px;min-width:150px;transition:box-shadow .15s,transform .15s}
+.stat:hover{box-shadow:0 6px 16px rgba(0,0,0,.07);transform:translateY(-1px)}
+.stat .n{font-size:30px;font-weight:800;letter-spacing:-.5px}
+.stat .l{font-size:12px;color:var(--muted);margin-top:2px;font-weight:500}
+.stat.hero{background:var(--yellow);border-color:var(--yellow-deep)}
+.stat.hero .n,.stat.hero .l{color:#111}
 .stat.red .n{color:var(--red)} .stat.gmap .n{color:var(--blue)}
-.stat.ok .n{color:var(--green)} .stat.cs .n{color:#7c3aed}
 .stat.coop .n{color:#0891b2} .stat.pre .n{color:#d97706}
-input.obs{width:100%;min-width:180px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
-input[type=text]{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;min-width:260px}
-select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff}
-label.chk{font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer;color:#374151}
-button{padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;cursor:pointer}
-button:hover{background:#f1f5f9}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+input[type=text]{padding:8px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;min-width:260px;background:#fff}
+input[type=text]:focus,input.obs:focus{outline:none;border-color:#111;box-shadow:0 0 0 3px rgba(255,228,31,.5)}
+label.chk{font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text);font-weight:500}
+label.chk input{accent-color:#111}
+button{padding:8px 16px;border:1px solid var(--border);border-radius:999px;font-size:13px;background:#fff;cursor:pointer;font-weight:600;color:var(--text)}
+button:hover{background:var(--yellow-soft);border-color:var(--yellow-border)}
+button.primary{background:var(--yellow);border-color:var(--yellow-deep);color:#000}
+button.primary:hover{background:var(--yellow-deep)}
 .spacer{flex:1}
-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border);font-size:13px}
-thead th{background:#f8fafc;text-align:left;padding:10px 10px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:default}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);font-size:13px}
+thead th{background:#fafafa;text-align:left;padding:11px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:default;font-weight:700}
 thead th.sortable{cursor:pointer} thead th.sortable:hover{color:#111}
-tbody td{padding:9px 10px;border-bottom:1px solid #eef2f7;vertical-align:top}
-tbody tr:hover{background:#f8fafc}
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+tbody td{padding:10px 12px;border-bottom:1px solid #f0f0f0;vertical-align:top}
+tbody tr:hover{background:var(--yellow-soft)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
 .b-red{background:var(--redbg);color:var(--red)}
 .b-gmap{background:var(--bluebg);color:var(--blue)}
-.b-stage{background:#eef2ff;color:#4338ca}
-.b-dash{color:#9ca3af}
-select.vis{min-width:96px}
+.b-dash{color:#c3c3c6}
+input.obs{width:100%;min-width:180px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff}
 td.mono{font-family:Consolas,monospace;font-size:12px}
 .name{font-weight:600}
 .date{color:var(--muted);font-size:12px;white-space:nowrap}
 .foot{margin-top:12px;color:var(--muted);font-size:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-@media (max-width:800px){body{padding:10px} .stat{min-width:110px}}
+@media (max-width:800px){body{padding:0 0 20px} .wrap{padding:0 12px} .stat{min-width:110px}}
 </style>
 </head>
 <body>
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo">Keeta<span class="dot"></span></div>
+    <div>
+      <div class="tb-title">Leads Criciúma · Autointegração via Site Oficial</div>
+      <div class="sub">Fonte: win.mykeeta.com — Leads · Filtro: Criciúma + Lead tags (Official website onboarding progress) · Última atualização dos dados: <b id="uptd"></b></div>
+    </div>
+  </div>
+</header>
 <div class="wrap">
-  <h1>Leads Criciúma · Autointegração via Site Oficial</h1>
-  <div class="sub">Fonte: win.mykeeta.com — Leads · Filtro: Criciúma + Lead tags (Official website onboarding progress) · Última atualização dos dados: <b id="uptd"></b></div>
 
   <div class="stats">
-    <div class="stat"><div class="n" id="s-total">0</div><div class="l">Total de leads</div></div>
+    <div class="stat hero"><div class="n" id="s-total">0</div><div class="l">Total de leads</div></div>
     <div class="stat red"><div class="n" id="s-red">0</div><div class="l">Com tag Red</div></div>
     <div class="stat gmap"><div class="n" id="s-gmap">0</div><div class="l">Google (GMap)</div></div>
     <div class="stat coop"><div class="n" id="s-coop">0</div><div class="l">Cooperando</div></div>
@@ -66,7 +81,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
     <label class="chk"><input type="checkbox" id="f-red"> Só Red</label>
     <label class="chk"><input type="checkbox" id="f-gmap"> Só Google (GMap)</label>
     <span class="spacer"></span>
-    <button id="btn-csv">Exportar CSV</button>
+    <button id="btn-csv" class="primary">Exportar CSV</button>
     <button id="btn-bkp">Backup observações (JSON)</button>
     <button id="btn-imp">Importar observações</button>
     <input type="file" id="file-vis" accept=".json" style="display:none">
