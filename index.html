@@ -55,7 +55,6 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
 
   <div class="stats">
     <div class="stat"><div class="n" id="s-total">0</div><div class="l">Total de leads</div></div>
-    <div class="stat cs"><div class="n" id="s-cs">0</div><div class="l">Contrato assinado</div></div>
     <div class="stat red"><div class="n" id="s-red">0</div><div class="l">Com tag Red</div></div>
     <div class="stat gmap"><div class="n" id="s-gmap">0</div><div class="l">Google (GMap)</div></div>
     <div class="stat coop"><div class="n" id="s-coop">0</div><div class="l">Cooperando</div></div>
@@ -285,7 +284,6 @@ function render(){
 
 function updateStats(){
   document.getElementById('s-total').textContent=LEADS.length;
-  document.getElementById('s-cs').textContent=LEADS.filter(function(l){return l.stage==='Contract signed'}).length;
   document.getElementById('s-coop').textContent=LEADS.filter(function(l){return l.status==='Cooperating'}).length;
   document.getElementById('s-pre').textContent=LEADS.filter(function(l){return l.status==='Pre-opening'}).length;
   document.getElementById('s-red').textContent=LEADS.filter(function(l){return l.red}).length;
