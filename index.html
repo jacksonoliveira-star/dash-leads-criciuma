@@ -74,6 +74,7 @@ td.mono{font-family:Consolas,monospace;font-size:12px}
     <div class="stat gmap"><div class="n" id="s-gmap">0</div><div class="l">Google (GMap)</div></div>
     <div class="stat coop"><div class="n" id="s-coop">0</div><div class="l">Cooperando</div></div>
     <div class="stat pre"><div class="n" id="s-pre">0</div><div class="l">Pré-abertura</div></div>
+    <div class="stat hero"><div class="n" id="s-conv">0</div><div class="l">Cooperando + Pré-abertura · <b id="s-conv-pct">0%</b> do total</div></div>
   </div>
 
   <div class="controls">
@@ -299,8 +300,14 @@ function render(){
 
 function updateStats(){
   document.getElementById('s-total').textContent=LEADS.length;
-  document.getElementById('s-coop').textContent=LEADS.filter(function(l){return l.status==='Cooperating'}).length;
-  document.getElementById('s-pre').textContent=LEADS.filter(function(l){return l.status==='Pre-opening'}).length;
+  var coop=LEADS.filter(function(l){return l.status==='Cooperating'}).length;
+  var pre=LEADS.filter(function(l){return l.status==='Pre-opening'}).length;
+  document.getElementById('s-coop').textContent=coop;
+  document.getElementById('s-pre').textContent=pre;
+  var conv=coop+pre;
+  var pct=LEADS.length?(conv*100/LEADS.length):0;
+  document.getElementById('s-conv').textContent=conv;
+  document.getElementById('s-conv-pct').textContent=pct.toFixed(1).replace('.',',')+'%';
   document.getElementById('s-red').textContent=LEADS.filter(function(l){return l.red}).length;
   document.getElementById('s-gmap').textContent=LEADS.filter(function(l){return l.gm}).length;
 }
